@@ -1,0 +1,7 @@
+# A sample Gemfile
+source "https://rubygems.org"
+
+gem "vault", "~> 0.1"
+gem "redis", "~> 3.2"
+gem 'alphanumeric_random', github: 'taka-oyama/alphanumeric_random'
+gem "global"

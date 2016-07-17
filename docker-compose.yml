@@ -1,0 +1,27 @@
+version: '2'
+services:
+  vault:
+    image: "sjourdan/vault"
+    hostname: "vault"
+    links:
+      - "consul:consul"
+    ports:
+      - "8200:8200"
+    volumes:
+      - "./vault/config:/config"
+      - "./vault/policies:/policies"
+    command: ["server", "-dev", "-config=/config/config.hcl"]
+
+  consul:
+    image: "consul"
+    hostname: "consul"
+    command: "agent -dev -client 0.0.0.0"
+    ports:
+      - "8400:8400"
+      - "8500:8500"
+      - "8600:53/udp"
+
+  redis:
+    image: "redis"
+    ports:
+      - "6379:6379"

@@ -1,0 +1,21 @@
+development:
+  temp_token_path: "temp_token_path"
+  vault:
+    url: "http://127.0.0.1:8200"
+  redis:
+    host: '127.0.0.1'
+    port: 6379
+    db: 0
+    queue: "application-cred-requests"
+    timeout: 10
+
+docker:
+  temp_token_path: "/temp_tokens"
+  vault:
+    url: "http://vault:8200"
+  redis:
+    host: 'redis'
+    port: 6379
+    db: 0
+    queue: "application-cred-requests"
+    timeout: 5
