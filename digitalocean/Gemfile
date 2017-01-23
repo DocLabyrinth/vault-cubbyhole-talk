@@ -1,0 +1,9 @@
+# frozen_string_literal: true
+source "https://rubygems.org"
+
+gem "redis"
+gem "vault"
+gem "droplet_kit"
+gem "global"
+gem "semantic_logger"
+gem "sinatra"
