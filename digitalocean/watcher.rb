@@ -23,19 +23,6 @@ tag2policy = {
 }
 
 sent_to_ids = Set.new()
-#
-# droplet = DropletKit::Droplet.new(
-#   name: 'deleteme',
-#   region: 'nyc2',
-#   image: 'ubuntu-16-04-x64',
-#   size: '512mb',
-#   private_networking: true,
-#   tags: ['web']
-# )
-#
-# DO_CLIENT.droplets.create(droplet)
-
-# DO_CLIENT.droplets.all.each{ |droplet| DO_CLIENT.droplets.delete(id: droplet.id) }
 
 loop_delay = 5
 app_port = 4567
@@ -45,21 +32,24 @@ loop do
     sleep loop_delay
 
     begin
-      # droplet_info = DO_CLIENT.droplets.all.map do |droplet|
-      #   {
-      #     id: droplet.id,
-      #     ip: droplet.private_networking,
-      #     tags: droplet.tags,
-      #   }
-      # end
-
-      droplet_infos = [
+      droplet_infos = DO_CLIENT.droplets.all.map do |droplet|
         {
-          id: '123213',
-          ip: '127.0.0.1',
-          tags: ['web']
+          id: droplet.id,
+          ip: droplet.private_ip,
+          tags: droplet.tags,
         }
-      ]
+      end
+
+      droplet_infos.each{|d| p d}
+
+      # some mock output for testing locally
+      # droplet_infos = [
+      #   {
+      #     id: '123213',
+      #     ip: '127.0.0.1',
+      #     tags: ['web']
+      #   }
+      # ]
     rescue Faraday::ClientError => e
       LOG.error('Droplet info request failed', class: e.class, message: e.message)
       next
@@ -81,10 +71,18 @@ loop do
         LOG.debug("Posting token to droplet endpoint", url: post_url)
 
         conn = Faraday.new(:url => post_url)
-        response = conn.post(post_url) do |req|
-          req.url '/put-token'
-          req.headers['Content-Type'] = 'application/json'
-          req.body = {temp_token: temp_token}.to_json
+
+        begin
+          response = conn.post(post_url) do |req|
+            req.url '/put-token'
+            req.headers['Content-Type'] = 'application/json'
+            req.body = {temp_token: temp_token}.to_json
+            req.options[:timeout] = 5           # open/read timeout in seconds
+            req.options[:open_timeout] = 2      # connection open timeout in seconds
+          end
+        rescue Faraday::ClientError => e
+          LOG.error('Droplet token request failed', class: e.class, message: e.message)
+          next
         end
 
         if !response.success?
